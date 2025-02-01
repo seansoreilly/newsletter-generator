@@ -7,6 +7,9 @@ from datetime import datetime, timedelta, timezone
 import time
 import calendar
 
+# Constant to limit the number of articles per category
+ARTICLE_LIMIT = 10
+
 
 class NewsCollector:
     def __init__(self):
@@ -17,7 +20,7 @@ class NewsCollector:
                 "excluded_domains": ["greaterdandenong.vic.gov.au"]
             },
             "Surrounding Councils": {
-                "query": '("City of Casey" OR "City of Kingston" OR "City of Monash" OR "City of Knox" OR "Frankston Council") -weather -forecast when:3d',
+                "query": '(casey OR kingston OR monash OR frankston) -weather -forecast when:3d',
                 "excluded_domains": []
             },
             "State & Federal Announcements": {
@@ -57,7 +60,7 @@ class NewsCollector:
         # Updated UTC time handling
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=3)
 
-        for entry in feed.entries[:5]:
+        for entry in feed.entries[:ARTICLE_LIMIT]:
             if hasattr(entry, 'published_parsed'):
                 # Convert struct_time to UTC datetime properly
                 timestamp = calendar.timegm(entry.published_parsed)
@@ -112,14 +115,14 @@ if __name__ == "__main__":
     collector = NewsCollector()
 
     # Test specific category
-    test_category = "Industry News"
-    search_params = collector.categories[test_category]
+    TEST_CATEGORY = "Greater Dandenong News"
+    search_params = collector.categories[TEST_CATEGORY]
 
-    print(f"Testing category: {test_category}")
+    print(f"Testing category: {TEST_CATEGORY}")
     print(f"Search URL: {collector.base_url.format(
         query=quote(search_params['query']))}")
 
-    articles = collector._fetch_category_articles(test_category, search_params)
+    articles = collector._fetch_category_articles(TEST_CATEGORY, search_params)
 
     for article in articles:
         print(f"\nTitle: {article['title']}")
