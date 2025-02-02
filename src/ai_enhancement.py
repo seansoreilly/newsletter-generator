@@ -84,9 +84,9 @@ def enrich_article(article: Dict) -> Dict:
     try:
         # Log the raw request details
         logging.debug("Sending request to OpenRouter API")
-        logging.debug(f"Request URL: {OPENROUTER_API_URL}")
-        logging.debug(f"Request headers: {headers}")
-        logging.debug(f"Request payload: {data}")
+        logging.debug("Request URL: %s", OPENROUTER_API_URL)
+        logging.debug("Request headers: %s", headers)
+        logging.debug("Request payload: %s", data)
 
         response = requests.post(
             OPENROUTER_API_URL, headers=headers, json=data)
@@ -106,7 +106,7 @@ def enrich_article(article: Dict) -> Dict:
         article["relevance"] = parsed.get(
             "relevance", "No explanation provided.")
     except Exception as e:
-        logging.error(f"Error enriching article: {str(e)}")
+        logging.error("Error enriching article: %s", str(e))
         article["summary"] = "Summary unavailable due to an error."
         article["relevance_score"] = "N/A"
         article["relevance"] = f"Error: {str(e)}"
