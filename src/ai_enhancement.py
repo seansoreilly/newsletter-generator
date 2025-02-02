@@ -58,18 +58,22 @@ def enrich_article(article: Dict) -> Dict:
         # "X-Title": "<YOUR_SITE_NAME>",
     }
 
-    # Construct the prompt. We instruct the model to return a JSON object.
-    prompt = (
-        f"Article Title: {article.get('title')}\n"
-        f"Article URL: {article.get('url')}\n\n"
-        "Please generate a concise two-sentence summary of this article, then evaluate its relevance to "
-        "the Greater Dandenong Council. Provide a numerical relevance score between 0 and 100 and a brief explanation "
-        "of the relevance. Return your response as a JSON object with the keys 'summary', 'relevance_score', and 'relevance'."
-    )
+    # Construct a structured prompt as JSON for a cleaner format.
+    prompt_dict = {
+        "article_title": article.get("title"),
+        "article_url": article.get("url"),
+        "instruction": (
+            "Generate a concise two-sentence summary of this article, then evaluate its relevance to the Greater Dandenong Council. "
+            "Provide a numerical relevance score between 0 and 100 and a brief explanation of the relevance. "
+            "Return your response as a JSON object with the keys \"summary\", \"relevance_score\", and \"relevance\"."
+        )
+    }
+    prompt = json.dumps(prompt_dict)
 
     data = {
         # "model": "openai/gpt-3.5-turbo",
-        "model": "perplexity/llama-3.1-sonar-small-128k-online",
+        # "model": "perplexity/llama-3.1-sonar-small-128k-online",
+        "model": "perplexity/llama-3.1-sonar-huge-128k-online",
         "messages": [
             {
                 "role": "user",
