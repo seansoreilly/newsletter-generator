@@ -77,13 +77,13 @@ SendGrid will handle the email distribution with:
 
 ## API Integration
 
-### NewsAPI
+### Google News
 
 - Used for initial article collection
 - Filter by region and relevance
 - Collect required article metadata
 
-### DeepSeek API
+### OpenRouter API
 
 - Two main functions:
   1. Generate article summaries and relevance explanations
@@ -105,7 +105,7 @@ SendGrid will handle the email distribution with:
 
 The system should accept the following configuration:
 
-- API keys (NewsAPI, DeepSeek, SendGrid)
+- API keys (OpenRouter, SendGrid)
 - Recipient list
 - Email subject format
 - Frequency of newsletter generation
