@@ -121,8 +121,8 @@ def enrich_article(article: Dict) -> Dict:
 if __name__ == "__main__":
     # Test the enrich_article function with a sample article
     sample_article = {
-        "title": "Council roasted over coffee cups - Dandenong Star Journal",
-        "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQYl9adl83X3Q3TEZma1V3WmhCQ1dmczBQVXRVdGw4c29BRFRRU2w1OXhYMXRMZUU3UTNPUlE5X3VFVVh6bkxpZkZQYUFEbHpJZjk1YTBpZ3ItUEloMlJOR1lRWUF2anBLMjRhMUdPSVhIejFWT2FhSUNGOHlCRHBlbG91YWJqdDQ0TlJBdzBUcHJSQQ?oc=5"
+        "title": "Soil mound clean-up goes to VCAT - Dandenong Star Journal",
+        "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNRy01TWlTYWJGTl8tVDhTTENvOG9YRk1YcE5zZk5QVko5R01ONzlvZGtISWNHMGY0OTJkdlloQldSZElQNEtZR2FISDNINFZJMGpMT21jbElmWWgtOXFSdEZidGZyZ19HSmdqZzZQY1luT0N2REV1SDJSazkzcW9CNzgwN29obW05RURCWGtTbGNiQQ?oc=5"
     }
     enriched = enrich_article(sample_article)
     print("Enriched Article:")

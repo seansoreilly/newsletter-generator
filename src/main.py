@@ -66,8 +66,48 @@ class NewsletterGenerator:
 
     def generate_html(self, articles: List[Dict]) -> str:
         """Uses DeepSeek to generate HTML email from enriched articles"""
-        # Will make actual DeepSeek API call here
-        return "<html>Generated email content</html>"
+        # Generate a responsive HTML email using inline CSS.
+        html = '''
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { font-family: Arial, sans-serif; margin:0; padding:0; }
+      .container { width: 100%%; max-width: 600px; margin: auto; }
+      .header { background-color: #0c5390; color: white; padding:20px; text-align: center; }
+      .article { border-bottom: 1px solid #ccc; padding: 10px 0; }
+      .article img { max-width: 100%%; height: auto; }
+      .footer { background-color: #f2f2f2; color: #888; padding: 10px; text-align: center; font-size:12px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Greater Dandenong Council Newsletter</h1>
+      </div>
+'''
+        for article in articles:
+            html += f'''
+      <div class="article">
+        <h2>{article.get("title")}</h2>
+        <p><em>{article.get("source", "Unknown Source")}</em></p>
+        <img src="{article.get("image_url")}" alt="Article Image">
+        <p>{article.get("summary")}</p>
+        <p><strong>Relevance Score:</strong> {article.get("relevance_score")}</p>
+        <p>{article.get("relevance")}</p>
+        <p><a href="{article.get("url")}">Read More</a></p>
+      </div>
+'''
+        html += '''
+      <div class="footer">
+        <p>&copy; {year} Greater Dandenong Council. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
+'''.format(year=2023)
+        return html
 
     def send_email(self, html_content: str) -> None:
         """Sends the email via SendGrid"""
@@ -86,3 +126,32 @@ class NewsletterGenerator:
         # 4. Send via SendGrid
         self.send_email(html_content)
 
+if __name__ == "__main__":
+    generator = NewsletterGenerator()
+
+    # Create sample enriched articles for testing.
+    sample_articles = [
+        {
+            "title": "Test Article One",
+            "url": "https://example.com/article1",
+            "image_url": "https://example.com/image1.jpg",
+            "source": "Example News",
+            "summary": "This is the first test summary, covering key points in two sentences.",
+            "relevance_score": 88,
+            "relevance": "This article is highly relevant to the topic due to its detailed coverage of local issues."
+        },
+        {
+            "title": "Test Article Two",
+            "url": "https://example.com/article2",
+            "image_url": "https://example.com/image2.jpg",
+            "source": "Sample Media",
+            "summary": "This is the second test summary, providing insight into local events.",
+            "relevance_score": 75,
+            "relevance": "It is moderately relevant since it highlights key local challenges."
+        }
+    ]
+
+    # Generate the HTML email using the sample articles.
+    html_content = generator.generate_html(sample_articles)
+    # Print the HTML content for review.
+    print(html_content)
