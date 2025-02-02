@@ -52,8 +52,6 @@ Enriched article structure:
 
 ### 3. HTML Email Generation
 
-DeepSeek API will generate a complete HTML email that:
-
 - Uses inline CSS for styling
 - Is mobile-responsive
 - Includes proper image handling

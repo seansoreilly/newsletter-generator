@@ -162,31 +162,14 @@ class NewsletterGenerator:
 
 
 if __name__ == "__main__":
-    generator = NewsletterGenerator()
-
-    # Create sample enriched articles for testing.
-    sample_articles = [
-        {
-            "title": "Test Article One",
-            "url": "https://example.com/article1",
-            "image_url": "https://example.com/image1.jpg",
-            "source": "Example News",
-            "summary": "This is the first test summary, covering key points in two sentences.",
-            "relevance_score": 88,
-            "relevance": "This article is highly relevant to the topic due to its detailed coverage of local issues."
-        },
-        {
-            "title": "Test Article Two",
-            "url": "https://example.com/article2",
-            "image_url": "https://example.com/image2.jpg",
-            "source": "Sample Media",
-            "summary": "This is the second test summary, providing insight into local events.",
-            "relevance_score": 75,
-            "relevance": "It is moderately relevant since it highlights key local challenges."
-        }
-    ]
-
-    # Generate the HTML email using the sample articles.
-    html_content = generator.generate_html(sample_articles)
-    # Print the HTML content for review.
-    print(html_content)
+    try:
+        generator = NewsletterGenerator()
+        
+        # Run the full newsletter generation workflow
+        generator.generate_newsletter()
+        
+        print("Newsletter generation completed successfully!")
+        
+    except Exception as e:
+        print(f"Error generating newsletter: {str(e)}")
+        logging.error(f"Newsletter generation failed: {str(e)}")
