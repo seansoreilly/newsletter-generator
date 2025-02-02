@@ -1,9 +1,25 @@
-import feedparser
+"""
+News collection module for the Greater Dandenong Council newsletter.
+
+This module handles fetching news articles from Google News RSS feeds across multiple categories:
+- Greater Dandenong News
+- Surrounding Councils 
+- State & Federal Announcements
+- Industry News
+
+Articles are filtered by relevance and recency, excluding specific domains where appropriate.
+Each article is collected with metadata including title, URL, source, and image URL.
+
+The module uses feedparser to process RSS feeds and implements rate limiting and error handling
+for reliable article collection.
+"""
+
 import logging
 from typing import List, Dict
 from urllib.parse import quote
 from datetime import datetime, timedelta, timezone
 import calendar
+import feedparser
 
 # Constant to limit the number of articles per category
 ARTICLE_LIMIT = 10
@@ -11,6 +27,7 @@ ARTICLE_LIMIT = 10
 
 class NewsCollector:
     """Collect articles for all categories"""
+
     def __init__(self):
         self.base_url = "https://news.google.com/rss/search?q={query}&hl=en-AU&gl=AU&ceid=AU:en&output=rss"
         self.categories = {
@@ -38,7 +55,7 @@ class NewsCollector:
 
         for category, search_params in self.categories.items():
             try:
-                category_articles = self._fetch_category_articles(
+                category_articles = self.fetch_category_articles(
                     category, search_params)
                 all_articles.extend(category_articles)
             except Exception as e:
@@ -48,23 +65,19 @@ class NewsCollector:
 
         return all_articles
 
-    def _fetch_category_articles(self, category: str, search_params: Dict) -> List[Dict]:
+    def fetch_category_articles(self, category: str, search_params: Dict) -> List[Dict]:
         """Fetch articles for a specific category"""
         encoded_query = quote(search_params["query"])
         feed_url = self.base_url.format(query=encoded_query) + "&sort=date"
-
         feed = feedparser.parse(feed_url)
         category_articles = []
-
         # Updated UTC time handling
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=3)
 
         for entry in feed.entries[:ARTICLE_LIMIT]:
             if hasattr(entry, 'published_parsed'):
-                # Convert struct_time to UTC datetime properly
                 timestamp = calendar.timegm(entry.published_parsed)
                 pub_date = datetime.fromtimestamp(timestamp, tz=timezone.utc)
-
                 if pub_date < cutoff_date:
                     print(f"Skipping old article from {
                           pub_date}: {entry.title[:50]}...")
@@ -121,7 +134,7 @@ if __name__ == "__main__":
     print(f"Search URL: {collector.base_url.format(
         query=quote(search_params['query']))}")
 
-    articles = collector._fetch_category_articles(TEST_CATEGORY, search_params)
+    articles = collector.fetch_category_articles(TEST_CATEGORY, search_params)
 
     for article in articles:
         print(f"\nTitle: {article['title']}")

@@ -28,10 +28,12 @@ Develop an AI agent designed to create and send a professional HTML email newsle
 
 ### 2. AI Content Enhancement
 
-Using DeepSeek API to enrich articles with:
+Using DeepSeek via the OpenRouter API to
 
-- A concise 2-sentence summary
-- Relevance explanation for Greater Dandenong Council
+- Check that the individual articles are relevant to Greater Dandenong Council
+- Generate a concise 2-sentence summary
+- Provide a relevance score between 0 and 100
+- Provide a relevance explanation for Greater Dandenong Council
 
 Enriched article structure:
 
@@ -43,6 +45,7 @@ Enriched article structure:
   "image_url": "Image URL",
   "source": "Source Name",
   "summary": "AI-generated summary",
+  "relevance_score": "AI-generated relevance score",
   "relevance": "AI-generated relevance explanation"
 }
 ```

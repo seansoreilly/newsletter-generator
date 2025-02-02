@@ -1,9 +1,37 @@
-from dotenv import load_dotenv
+"""
+Newsletter generation module for the Greater Dandenong Council.
+
+This module orchestrates the end-to-end process of generating and sending the council newsletter:
+- Collecting news articles across multiple categories using Google News RSS
+- Enriching articles with AI-generated summaries and relevance scores via DeepSeek
+- Generating a responsive HTML email template
+- Distributing the newsletter via SendGrid
+
+The module handles configuration via environment variables and implements proper error handling
+throughout the pipeline to ensure reliable newsletter generation and delivery.
+"""
+
 import os
 from typing import List, Dict
+from dotenv import load_dotenv
 
 
 class NewsletterGenerator:
+    """
+    A class to generate and send the Greater Dandenong Council newsletter.
+
+    This class handles the end-to-end process of newsletter generation including:
+    - Collecting news articles from NewsAPI across multiple categories
+    - Enriching articles with AI-generated summaries and relevance scores via DeepSeek
+    - Generating a responsive HTML email template
+    - Distributing the newsletter via SendGrid
+
+    Attributes:
+        deepseek_api_key (str): API key for DeepSeek AI service
+        news_api_key (str): API key for NewsAPI service
+        sendgrid_api_key (str): API key for SendGrid email service
+    """
+
     def __init__(self):
         load_dotenv()
         self.deepseek_api_key = os.getenv('DEEPSEEK_API_KEY')
@@ -44,7 +72,6 @@ class NewsletterGenerator:
     def send_email(self, html_content: str) -> None:
         """Sends the email via SendGrid"""
         # Will implement SendGrid sending logic
-        pass
 
     def generate_newsletter(self):
         # 1. Collect news articles
@@ -58,3 +85,4 @@ class NewsletterGenerator:
 
         # 4. Send via SendGrid
         self.send_email(html_content)
+
