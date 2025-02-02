@@ -14,6 +14,15 @@ from typing import Dict
 import requests
 from dotenv import load_dotenv
 
+# Add logging configuration
+logging.basicConfig(
+    level=logging.DEBUG,  # Set the logging level to DEBUG to see all messages
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()  # This will output to console/stdout
+    ]
+)
+
 load_dotenv()
 
 # Endpoint for OpenRouter's Chat Completions API (adjust if necessary)
@@ -59,8 +68,8 @@ def enrich_article(article: Dict) -> Dict:
     )
 
     data = {
-        "model": "openai/gpt-3.5-turbo",
-        # "model": "perplexity/llama-3.1-sonar-small-128k-online",
+        # "model": "openai/gpt-3.5-turbo",
+        "model": "perplexity/llama-3.1-sonar-small-128k-online",
         "messages": [
             {
                 "role": "user",
@@ -73,11 +82,20 @@ def enrich_article(article: Dict) -> Dict:
     }
 
     try:
+        # Log the raw request details
+        logging.debug("Sending request to OpenRouter API")
+        logging.debug(f"Request URL: {OPENROUTER_API_URL}")
+        logging.debug(f"Request headers: {headers}")
+        logging.debug(f"Request payload: {data}")
+
         response = requests.post(
             OPENROUTER_API_URL, headers=headers, json=data)
         response.raise_for_status()
-        raw = response.text  # Log or print this for debugging
+
+        # Log the raw response
+        raw = response.text
         logging.debug(f"Raw response: {raw}")
+
         result = response.json()
         # Retrieve the chat response content from OpenRouter
         chat_response = result["choices"][0]["message"]["content"]
