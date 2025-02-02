@@ -14,6 +14,7 @@ throughout the pipeline to ensure reliable newsletter generation and delivery.
 import os
 from typing import List, Dict
 from dotenv import load_dotenv
+from datetime import datetime
 
 
 class NewsletterGenerator:
@@ -27,15 +28,11 @@ class NewsletterGenerator:
     - Distributing the newsletter via SendGrid
 
     Attributes:
-        deepseek_api_key (str): API key for DeepSeek AI service
-        news_api_key (str): API key for NewsAPI service
         sendgrid_api_key (str): API key for SendGrid email service
     """
 
     def __init__(self):
         load_dotenv()
-        self.deepseek_api_key = os.getenv('DEEPSEEK_API_KEY')
-        self.news_api_key = os.getenv('NEWS_API_KEY')
         self.sendgrid_api_key = os.getenv('SENDGRID_API_KEY')
 
     def collect_news(self) -> List[Dict]:
@@ -65,48 +62,85 @@ class NewsletterGenerator:
         return enriched
 
     def generate_html(self, articles: List[Dict]) -> str:
-        """Uses DeepSeek to generate HTML email from enriched articles"""
+        """Generate a responsive HTML email from the enriched articles.
+
+        Args:
+            articles (List[Dict]): List of enriched articles containing title, url,
+                                 image_url, source, summary, relevance_score, and relevance.
+
+        Returns:
+            str: A responsive HTML email template with the articles formatted for email clients.
+        """
         # Generate a responsive HTML email using inline CSS.
-        html = '''
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      body { font-family: Arial, sans-serif; margin:0; padding:0; }
-      .container { width: 100%%; max-width: 600px; margin: auto; }
-      .header { background-color: #0c5390; color: white; padding:20px; text-align: center; }
-      .article { border-bottom: 1px solid #ccc; padding: 10px 0; }
-      .article img { max-width: 100%%; height: auto; }
-      .footer { background-color: #f2f2f2; color: #888; padding: 10px; text-align: center; font-size:12px; }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>Greater Dandenong Council Newsletter</h1>
-      </div>
+        html = '''<!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <style>
+       body {
+         font-family: Arial, sans-serif;
+         margin: 0;
+         padding: 0;
+       }
+       .container {
+         width: 100%%;
+         max-width: 600px;
+         margin: auto;
+         padding: 20px;
+       }
+       .header {
+         background-color: #0c5390;
+         color: white;
+         padding: 20px;
+         text-align: center;
+         border-radius: 5px 5px 0 0;
+       }
+       .article {
+         border-bottom: 1px solid #ccc;
+         padding: 20px 0;
+       }
+       .article img {
+         max-width: 100%%;
+         height: auto;
+         border-radius: 5px;
+       }
+       .footer {
+         background-color: #f2f2f2;
+         color: #888;
+         padding: 15px;
+         text-align: center;
+         font-size: 12px;
+         border-radius: 0 0 5px 5px;
+       }
+     </style>
+   </head>
+   <body>
+     <div class="container">
+       <div class="header">
+         <h1>Greater Dandenong Council Newsletter</h1>
+       </div>
 '''
         for article in articles:
             html += f'''
-      <div class="article">
-        <h2>{article.get("title")}</h2>
-        <p><em>{article.get("source", "Unknown Source")}</em></p>
-        <img src="{article.get("image_url")}" alt="Article Image">
-        <p>{article.get("summary")}</p>
-        <p><strong>Relevance Score:</strong> {article.get("relevance_score")}</p>
-        <p>{article.get("relevance")}</p>
-        <p><a href="{article.get("url")}">Read More</a></p>
-      </div>
+       <div class="article">
+         <h2>{article.get("title")}</h2>
+         <p><em>{article.get("source", "Unknown Source")}</em></p>
+         <img src="{article.get("image_url")}" alt="Article Image">
+         <p>{article.get("summary")}</p>
+         <p><strong>Relevance Score:</strong> {article.get("relevance_score")}</p>
+         <p>{article.get("relevance")}</p>
+         <p><a href="{article.get("url")}">Read More</a></p>
+       </div>
 '''
         html += '''
-      <div class="footer">
-        <p>&copy; {year} Greater Dandenong Council. All rights reserved.</p>
-      </div>
-    </div>
-  </body>
-</html>
-'''.format(year=2023)
+       <div class="footer">
+         <p>&copy; {year} Greater Dandenong Council. All rights reserved.</p>
+       </div>
+     </div>
+   </body>
+ </html>
+'''.format(year=datetime.now().year)
         return html
 
     def send_email(self, html_content: str) -> None:
@@ -125,6 +159,7 @@ class NewsletterGenerator:
 
         # 4. Send via SendGrid
         self.send_email(html_content)
+
 
 if __name__ == "__main__":
     generator = NewsletterGenerator()
