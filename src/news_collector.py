@@ -2,9 +2,7 @@ import feedparser
 import logging
 from typing import List, Dict
 from urllib.parse import quote
-import requests
 from datetime import datetime, timedelta, timezone
-import time
 import calendar
 
 # Constant to limit the number of articles per category
@@ -12,6 +10,7 @@ ARTICLE_LIMIT = 10
 
 
 class NewsCollector:
+    """Collect articles for all categories"""
     def __init__(self):
         self.base_url = "https://news.google.com/rss/search?q={query}&hl=en-AU&gl=AU&ceid=AU:en&output=rss"
         self.categories = {
@@ -55,7 +54,7 @@ class NewsCollector:
         feed_url = self.base_url.format(query=encoded_query) + "&sort=date"
 
         feed = feedparser.parse(feed_url)
-        articles = []
+        category_articles = []
 
         # Updated UTC time handling
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=3)
@@ -75,7 +74,7 @@ class NewsCollector:
                 continue
 
             if self._validate_article(entry, search_params["excluded_domains"]):
-                articles.append({
+                category_articles.append({
                     "category": category,
                     "title": entry.title,
                     "url": entry.link,
@@ -84,7 +83,7 @@ class NewsCollector:
                     "date": pub_date.strftime('%Y-%m-%d') if hasattr(entry, 'published_parsed') else 'Unknown'
                 })
 
-        return articles
+        return category_articles
 
     def _validate_article(self, entry, excluded_domains: List[str]) -> bool:
         """Validate article and check against excluded domains"""

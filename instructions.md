@@ -13,7 +13,7 @@ Develop an AI agent designed to create and send a professional HTML email newsle
 
 ### 1. News Article Collection
 
-- Use NewsAPI to gather articles for each category
+- Use Google News RSS feeds to gather articles for each category
 - Each article will be stored in JSON format with the following structure:
 
 ```json
