@@ -86,7 +86,7 @@ SendGrid will handle the email distribution with:
 ### OpenRouter API
 
 - Two main functions:
-  1. Generate article summaries and relevance explanations
+  1. Generate article summaries, relevance explanations and relevance scores.  The AI model used for this must have access to the internet.
   2. Create the complete HTML email template
 
 ### SendGrid API
