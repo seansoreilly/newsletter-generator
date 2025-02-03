@@ -159,7 +159,8 @@ class NewsletterGenerator:
             response = requests.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers=headers,
-                json=data
+                json=data,
+                timeout=30  # 30 second timeout
             )
             response.raise_for_status()
 
