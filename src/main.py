@@ -57,7 +57,8 @@ class NewsletterGenerator:
         load_dotenv()
         self.sendgrid_api_key = os.getenv('SENDGRID_API_KEY')
         self.openrouter_api_key = os.getenv('OPENROUTER_API_KEY')
-        self.frequency_hours = int(os.getenv('NEWSLETTER_FREQUENCY_HOURS', '24'))
+        self.frequency_hours = int(
+            os.getenv('NEWSLETTER_FREQUENCY_HOURS', '24'))
         self.last_run = None
         self.collector = NewsCollector()
 
@@ -65,13 +66,14 @@ class NewsletterGenerator:
         """Check if enough time has passed since last newsletter generation"""
         if self.last_run is None:
             return True
-        hours_since_last_run = (datetime.now() - self.last_run).total_seconds() / 3600
+        hours_since_last_run = (
+            datetime.now() - self.last_run).total_seconds() / 3600
         return hours_since_last_run >= self.frequency_hours
 
     def collect_news(self) -> List[Dict]:
         """Collects news articles from Google News RSS feeds"""
         articles = self.collector.get_articles()
-        
+
         # Group articles by category and limit to 3-5 per category
         categorized = {}
         for article in articles:
@@ -80,13 +82,13 @@ class NewsletterGenerator:
                 categorized[category] = []
             if len(categorized[category]) < 5:  # Maximum 5 articles per category
                 categorized[category].append(article)
-        
+
         # Ensure minimum of 3 articles per category where available
         final_articles = []
         for category_articles in categorized.values():
             if len(category_articles) >= 3:  # Only include if minimum threshold met
                 final_articles.extend(category_articles)
-        
+
         return final_articles
 
     def enrich_articles(self, articles: List[Dict]) -> List[Dict]:
@@ -94,11 +96,11 @@ class NewsletterGenerator:
         enriched = []
         for article in articles:
             try:
-
                 enriched_article = enrich_article(article)
                 enriched.append(enriched_article)
             except Exception as e:
-                logging.error(f"Error enriching article {article.get('title')}: {str(e)}")
+                logging.error("Error enriching article %s: %s",
+                              article.get('title'), str(e))
                 continue
         return enriched
 
@@ -159,19 +161,19 @@ class NewsletterGenerator:
                 json=data
             )
             response.raise_for_status()
-            
+
             # Extract the HTML from the response
             result = response.json()
             html_content = result["choices"][0]["message"]["content"]
-            
+
             # Validate that it's proper HTML
             if not html_content.strip().startswith('<!DOCTYPE html>'):
                 raise ValueError("Generated content is not valid HTML")
-                
+
             return html_content
 
         except Exception as e:
-            logging.error(f"Error generating HTML template: {str(e)}")
+            logging.error("Error generating HTML template: %s", str(e))
             # Fallback to a simple but functional template
             return self._generate_fallback_html(articles)
 
@@ -201,32 +203,44 @@ class NewsletterGenerator:
 
         # Generate HTML for each category
         for category, category_articles in categorized.items():
-            html += f'<h2>{category}</h2>'
+            html += '<h2>{}</h2>'.format(category)
             for article in category_articles:
-                html += f"""
+                html += """
     <div class="article">
-        <h3>{article.get("title")}</h3>
-        <p><em>{article.get("source", "Unknown Source")}</em></p>
-        <img src="{article.get("image_url")}" alt="Article Image">
-        <p>{article.get("summary")}</p>
-        <p><strong>Relevance Score:</strong> {article.get("relevance_score")}</p>
-        <p>{article.get("relevance")}</p>
-        <p><a href="{article.get("url")}">Read More</a></p>
+        <h3>{title}</h3>
+        <p><em>{source}</em></p>
+        <img src="{image_url}" alt="Article Image">
+        <p>{summary}</p>
+        <p><strong>Relevance Score:</strong> {relevance_score}</p>
+        <p>{relevance}</p>
+        <p><a href="{url}">Read More</a></p>
     </div>
-"""
-        html += f"""
+""".format(
+                    title=article.get("title"),
+                    source=article.get("source", "Unknown Source"),
+                    image_url=article.get("image_url"),
+                    summary=article.get("summary"),
+                    relevance_score=article.get("relevance_score"),
+                    relevance=article.get("relevance"),
+                    url=article.get("url")
+                )
+
+        html += """
     <div style="text-align: center; margin-top: 20px; color: #666;">
-        <p>&copy; {datetime.now().year} Greater Dandenong Council. All rights reserved.</p>
+        <p>&copy; {} Greater Dandenong Council. All rights reserved.</p>
     </div>
 </body>
 </html>
-"""
+""".format(datetime.now().year)
         return html
 
     def generate_newsletter(self):
         """Generate and send the newsletter if the frequency threshold is met"""
         if not self.should_generate():
-            logging.info(f"Skipping newsletter generation - next run in {self.frequency_hours - ((datetime.now() - self.last_run).total_seconds() / 3600):.1f} hours")
+            hours_remaining = self.frequency_hours - (
+                (datetime.now() - self.last_run).total_seconds() / 3600)
+            logging.info("Skipping newsletter generation - next run in %.1f hours",
+                         hours_remaining)
             return
 
         try:
@@ -236,6 +250,20 @@ class NewsletterGenerator:
             if not articles:
                 logging.error("No articles collected")
                 return
+
+            logging.info(
+                "Collected %d articles across categories", len(articles))
+
+            # Log article distribution
+            categories = {}
+            for article in articles:
+                cat = article['category']
+                if cat not in categories:
+                    categories[cat] = 0
+                categories[cat] += 1
+
+            for category, count in categories.items():
+                logging.info("Category '%s': %d articles", category, count)
 
             # 2. Generate summaries and relevance using DeepSeek
             logging.info("Enriching articles with AI content...")
@@ -257,31 +285,35 @@ class NewsletterGenerator:
             logging.info("Newsletter generation completed successfully!")
 
         except Exception as e:
-            logging.error(f"Error generating newsletter: {str(e)}")
-            raise
+            logging.error("Newsletter generation failed!")
+            logging.error("Error details: %s", str(e))
+            logging.error("Stack trace:\n%s", traceback.format_exc())
+            sys.exit(1)
 
 
 if __name__ == "__main__":
     logging.info("Starting newsletter generation process...")
-    
+
     # Verify environment variables
-    required_vars = ['SENDGRID_API_KEY', 'OPENROUTER_API_KEY', 'SENDER_EMAIL', 'RECIPIENTS']
+    required_vars = ['SENDGRID_API_KEY',
+                     'OPENROUTER_API_KEY', 'SENDER_EMAIL', 'RECIPIENTS']
     missing_vars = [var for var in required_vars if not os.getenv(var)]
-    
+
     if missing_vars:
-        logging.error(f"Missing required environment variables: {', '.join(missing_vars)}")
+        logging.error("Missing required environment variables: %s",
+                      ', '.join(missing_vars))
         sys.exit(1)
-    
+
     try:
         # Initialize newsletter generator
         logging.info("Initializing newsletter generator...")
         generator = NewsletterGenerator()
-        
+
         # Test article collection
         logging.info("Testing article collection...")
         articles = generator.collect_news()
         logging.info(f"Collected {len(articles)} articles across categories")
-        
+
         # Log article distribution
         categories = {}
         for article in articles:
@@ -289,41 +321,42 @@ if __name__ == "__main__":
             if cat not in categories:
                 categories[cat] = 0
             categories[cat] += 1
-        
+
         for category, count in categories.items():
             logging.info(f"Category '{category}': {count} articles")
-        
+
         # Test article enrichment
         logging.info("Testing article enrichment...")
-        enriched = generator.enrich_articles(articles[:2])  # Test with 2 articles
+        enriched = generator.enrich_articles(
+            articles[:2])  # Test with 2 articles
         if enriched:
             logging.info("Article enrichment successful")
-            logging.info(f"Sample enrichment for '{enriched[0]['title']}':")
-            logging.info(f"- Summary: {enriched[0]['summary'][:100]}...")
-            logging.info(f"- Relevance Score: {enriched[0]['relevance_score']}")
-        
+            logging.info("Sample enrichment for '%s':", enriched[0]['title'])
+            logging.info("- Summary: %s...", enriched[0]['summary'][:100])
+            logging.info("- Relevance Score: %s",
+                         enriched[0]['relevance_score'])
+
         # Test HTML generation
         logging.info("Testing HTML generation...")
         html = generator.generate_html(enriched)
         if html and html.strip().startswith('<!DOCTYPE html>'):
             logging.info("HTML generation successful")
-        
+
         # Test email sending
         if input("Send test email? (y/n): ").lower() == 'y':
             logging.info("Sending test email...")
             send_email(html)
             logging.info("Test email sent successfully")
-        
+
         logging.info("All components tested successfully!")
-        
+
         if input("Run full newsletter generation? (y/n): ").lower() == 'y':
             logging.info("Starting full newsletter generation...")
             generator.generate_newsletter()
             logging.info("Newsletter generation completed successfully!")
-        
+
     except Exception as e:
         logging.error("Newsletter generation failed!")
-        logging.error(f"Error details: {str(e)}")
-        import traceback
-        logging.error(f"Stack trace:\n{traceback.format_exc()}")
+        logging.error("Error details: %s", str(e))
+        logging.error("Stack trace:\n%s", traceback.format_exc())
         sys.exit(1)
