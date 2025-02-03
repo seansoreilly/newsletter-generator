@@ -180,7 +180,7 @@ class NewsletterGenerator:
             return self._generate_fallback_html(articles)
 
     def _generate_fallback_html(self, articles: List[Dict]) -> str:
-        """Generate a simple fallback HTML template if DeepSeek fails"""
+        """Generate a simple fallback HTML template if OpenRouter fails"""
         html = """<!DOCTYPE html>
 <html>
 <head>
@@ -193,7 +193,6 @@ class NewsletterGenerator:
     </style>
 </head>
 <body>
-    <h1>Greater Dandenong Council Newsletter</h1>
 """
         # Group articles by category
         categorized = {}
@@ -205,35 +204,26 @@ class NewsletterGenerator:
 
         # Generate HTML for each category
         for category, category_articles in categorized.items():
-            html += '<h2>{}</h2>'.format(category)
+            html += f'<h2>{category}</h2>'
             for article in category_articles:
-                html += """
+                html += f"""
     <div class="article">
-        <h3>{title}</h3>
-        <p><em>{source}</em></p>
-        <img src="{image_url}" alt="Article Image">
-        <p>{summary}</p>
-        <p><strong>Relevance Score:</strong> {relevance_score}</p>
-        <p>{relevance}</p>
-        <p><a href="{url}">Read More</a></p>
+        <h3>{article.get("title")}</h3>
+        <p><em>{article.get("source", "Unknown Source")}</em></p>
+        <img src="{article.get("image_url")}" alt="Article Image">
+        <p>{article.get("summary")}</p>
+        <p><strong>Relevance Score:</strong> {article.get("relevance_score")}</p>
+        <p>{article.get("relevance")}</p>
+        <p><a href="{article.get("url")}">Read More</a></p>
     </div>
-""".format(
-                    title=article.get("title"),
-                    source=article.get("source", "Unknown Source"),
-                    image_url=article.get("image_url"),
-                    summary=article.get("summary"),
-                    relevance_score=article.get("relevance_score"),
-                    relevance=article.get("relevance"),
-                    url=article.get("url")
-                )
-
-        html += """
+"""
+        html += f"""
     <div style="text-align: center; margin-top: 20px; color: #666;">
-        <p>&copy; {} Greater Dandenong Council. All rights reserved.</p>
+        <p>&copy; {datetime.now().year} Greater Dandenong Council. All rights reserved.</p>
     </div>
 </body>
 </html>
-""".format(datetime.now().year)
+"""
         return html
 
     def generate_newsletter(self):
