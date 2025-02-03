@@ -92,7 +92,6 @@ class NewsCollector:
                     "title": entry.title,
                     "url": entry.link,
                     "source": entry.source.title if hasattr(entry, 'source') else "Google News",
-                    "image_url": self._extract_image_url(entry),
                     "date": pub_date.strftime('%Y-%m-%d') if hasattr(entry, 'published_parsed') else 'Unknown'
                 })
 
@@ -111,17 +110,6 @@ class NewsCollector:
 
         return True
 
-    def _extract_image_url(self, entry) -> str:
-        """Extract image URL from entry or return a default image"""
-        # Try to find image in media content
-        if hasattr(entry, 'media_content'):
-            for media in entry.media_content:
-                if media.get('type', '').startswith('image/'):
-                    return media['url']
-
-        # If no image found, return a default image URL
-        return "https://via.placeholder.com/300x200"
-
 
 if __name__ == "__main__":
     collector = NewsCollector()
@@ -139,5 +127,4 @@ if __name__ == "__main__":
     for article in articles:
         print(f"\nTitle: {article['title']}")
         print(f"URL: {article['url']}")
-        print(f"Image: {article['image_url']}")
         print("-" * 80)
