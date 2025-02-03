@@ -16,11 +16,12 @@ import sys
 import logging
 import traceback
 from typing import List, Dict
+from datetime import datetime
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
 from news_collector import NewsCollector
 from ai_enhancement import enrich_article
 from email_sender import send_email
+
 
 # Ensure src directory is in Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -323,7 +324,7 @@ if __name__ == "__main__":
             categories[cat] += 1
 
         for category, count in categories.items():
-            logging.info(f"Category '{category}': {count} articles")
+            logging.info("Category '%s': %d articles", category, count)
 
         # Test article enrichment
         logging.info("Testing article enrichment...")
