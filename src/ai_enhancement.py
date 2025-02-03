@@ -39,7 +39,7 @@ def enrich_article(article: Dict) -> Dict:
     Returns:
         Dict: The enriched article updated with the following keys:
             - 'summary': A concise two-sentence summary.
-            - 'image_url': A URL to an image related to the article.
+            - 'image_url': A URL to the main image related to the article.
             - 'relevance_score': A relevance score between 0 and 100.
             - 'relevance': A brief explanation of the article's relevance.
     """
@@ -63,10 +63,10 @@ def enrich_article(article: Dict) -> Dict:
         "article_title": article.get("title"),
         "article_url": article.get("url"),
         "instruction": (
-            "Generate a concise two-sentence summary of this article "
-            "Return the main image url from the article "
-            "Then evaluate its relevance to the Greater Dandenong Council. "
-            "Provide a numerical relevance score between 0 and 100 and a brief explanation of the relevance. "
+            "summary: Generate a concise two-sentence summary of this article "
+            "image_url: Return the main image url from the article "
+            "relevance_score: Then evaluate its relevance to the Greater Dandenong Council. "
+            "relevance: Provide a numerical relevance score between 0 and 100 and a brief explanation of the relevance. "
             "Return your response as a JSON object with the keys \"summary\", \"image_url\", \"relevance_score\", and \"relevance\"."
         )
     }
