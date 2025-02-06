@@ -73,8 +73,6 @@ def enrich_article(article: Dict) -> Dict:
     prompt = json.dumps(prompt_dict)
 
     data = {
-        # "model": "openai/gpt-3.5-turbo",
-        # "model": "perplexity/llama-3.1-sonar-small-128k-online",
         "model": "perplexity/llama-3.1-sonar-huge-128k-online",
         "messages": [
             {
@@ -82,10 +80,8 @@ def enrich_article(article: Dict) -> Dict:
                 "content": prompt
             }
         ],
-        # Increased max_tokens to handle longer responses
         "max_tokens": 500,
         "temperature": 0.7,
-        # Add response format instructions
         "response_format": {"type": "json_object"}
     }
 
@@ -135,16 +131,14 @@ def enrich_article(article: Dict) -> Dict:
                     score = max(0, min(100, score))  # Clamp between 0 and 100
             except (ValueError, TypeError):
                 score = 0
-                logging.warning(f"Invalid relevance score format: {
-                                parsed.get('relevance_score')}, defaulting to 0")
+                logging.warning(f"Invalid relevance score format: {parsed.get('relevance_score')}, defaulting to 0")
 
             article["summary"] = summary
             article["relevance_score"] = score
             article["relevance"] = relevance
 
             # Log successful parsing
-            logging.debug(f"Successfully parsed AI response for article: {
-                          article.get('title')}")
+            logging.debug(f"Successfully parsed AI response for article: {article.get('title')}")
             logging.debug(f"Summary: {summary[:100]}...")
             logging.debug(f"Relevance Score: {score}")
 
@@ -164,12 +158,10 @@ def enrich_article(article: Dict) -> Dict:
                 if '"summary":' in line:
                     summary = line.split('"summary":')[1].strip().strip('",')
                 elif '"relevance":' in line:
-                    relevance = line.split('"relevance":')[
-                        1].strip().strip('",')
+                    relevance = line.split('"relevance":')[1].strip().strip('",')
                 elif '"relevance_score":' in line:
                     try:
-                        score = int(line.split('"relevance_score":')[
-                                    1].strip().strip(','))
+                        score = int(line.split('"relevance_score":')[1].strip().strip(','))
                     except ValueError:
                         score = 0
 

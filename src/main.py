@@ -169,6 +169,9 @@ class NewsletterGenerator:
             html_content = result["choices"][0]["message"]["content"]
 
             # Validate that it's proper HTML
+            logging.info("HTML content generated is:")
+            logging.info(html_content)
+
             if not html_content.strip().startswith('<!DOCTYPE html>'):
                 raise ValueError("Generated content is not valid HTML")
 
@@ -287,19 +290,20 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
         # Run test mode
         logging.info("Running in test mode...")
-        
+
         # Test environment verification
-        assert verify_environment() in [True, False], "Verify environment should return boolean"
-        
+        assert verify_environment() in [
+            True, False], "Verify environment should return boolean"
+
         # Test service initialization
         from services.newsletter_service import NewsletterService
         service = NewsletterService()
         assert service is not None, "Service initialization failed"
-        
+
         # Test run_test_mode
         result = run_test_mode(service)
         assert result in [True, False], "Test mode should return boolean"
-        
+
         print("All main.py tests passed!")
     else:
         # Normal execution
@@ -323,7 +327,8 @@ if __name__ == "__main__":
             # Test article collection (limit to 2 articles)
             logging.info("Testing article collection...")
             articles = generator.collect_news()[:2]  # Limit to 2 articles
-            logging.info("Collected %d articles across categories", len(articles))
+            logging.info(
+                "Collected %d articles across categories", len(articles))
 
             # Log article distribution
             categories = {}
@@ -342,7 +347,8 @@ if __name__ == "__main__":
                 articles[:2])  # Test with 2 articles
             if enriched:
                 logging.info("Article enrichment successful")
-                logging.info("Sample enrichment for '%s':", enriched[0]['title'])
+                logging.info("Sample enrichment for '%s':",
+                             enriched[0]['title'])
                 logging.info("- Summary: %s...", enriched[0]['summary'][:100])
                 logging.info("- Relevance Score: %s",
                              enriched[0]['relevance_score'])
@@ -354,17 +360,16 @@ if __name__ == "__main__":
                 logging.info("HTML generation successful")
 
             # Test email sending
-            if input("Send test email? (y/n): ").lower() == 'y':
                 logging.info("Sending test email...")
                 send_email(html)
                 logging.info("Test email sent successfully")
 
             logging.info("All components tested successfully!")
 
-            if input("Run full newsletter generation? (y/n): ").lower() == 'y':
-                logging.info("Starting full newsletter generation...")
-                generator.generate_newsletter()
-                logging.info("Newsletter generation completed successfully!")
+            # if input("Run full newsletter generation? (y/n): ").lower() == 'y':
+            #     logging.info("Starting full newsletter generation...")
+            #     generator.generate_newsletter()
+            #     logging.info("Newsletter generation completed successfully!")
 
         except Exception as e:
             logging.error("Newsletter generation failed!")
