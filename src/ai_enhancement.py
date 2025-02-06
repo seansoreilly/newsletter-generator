@@ -63,13 +63,14 @@ def enrich_article(article: Dict) -> Dict:
         "article_title": article.get("title"),
         "article_url": article.get("url"),
         "instruction": (
-            "summary: Generate a concise two-sentence summary of this article "
-            "image_url: Return the main image url from the article "
-            "relevance_score: Then evaluate its relevance to the Greater Dandenong Council. "
-            "relevance: Provide a numerical relevance score between 0 and 100 and a brief explanation of the relevance. "
+            "summary: Generate a concise two-sentence summary of this article. "
+            "image_url: Extract and return only the main image img['src'] attribute. "
+            "relevance_score: Evaluate the article's relevance to the Greater Dandenong Council and provide a numerical score between 0 and 100. "
+            "relevance: Provide a brief explanation of the relevance. "
             "Return your response as a JSON object with the keys \"summary\", \"image_url\", \"relevance_score\", and \"relevance\"."
         )
     }
+
     prompt = json.dumps(prompt_dict)
 
     data = {
