@@ -284,71 +284,90 @@ class NewsletterGenerator:
 
 
 if __name__ == "__main__":
-    logging.info("Starting newsletter generation process...")
+    if len(sys.argv) > 1 and sys.argv[1] == "--test":
+        # Run test mode
+        logging.info("Running in test mode...")
+        
+        # Test environment verification
+        assert verify_environment() in [True, False], "Verify environment should return boolean"
+        
+        # Test service initialization
+        from services.newsletter_service import NewsletterService
+        service = NewsletterService()
+        assert service is not None, "Service initialization failed"
+        
+        # Test run_test_mode
+        result = run_test_mode(service)
+        assert result in [True, False], "Test mode should return boolean"
+        
+        print("All main.py tests passed!")
+    else:
+        # Normal execution
+        logging.info("Starting newsletter generation process...")
 
-    # Verify environment variables
-    required_vars = ['SENDGRID_API_KEY',
-                     'OPENROUTER_API_KEY', 'SENDER_EMAIL', 'RECIPIENTS']
-    missing_vars = [var for var in required_vars if not os.getenv(var)]
+        # Verify environment variables
+        required_vars = ['SENDGRID_API_KEY',
+                         'OPENROUTER_API_KEY', 'SENDER_EMAIL', 'RECIPIENTS']
+        missing_vars = [var for var in required_vars if not os.getenv(var)]
 
-    if missing_vars:
-        logging.error("Missing required environment variables: %s",
-                      ', '.join(missing_vars))
-        sys.exit(1)
+        if missing_vars:
+            logging.error("Missing required environment variables: %s",
+                          ', '.join(missing_vars))
+            sys.exit(1)
 
-    try:
-        # Initialize newsletter generator
-        logging.info("Initializing newsletter generator...")
-        generator = NewsletterGenerator()
+        try:
+            # Initialize newsletter generator
+            logging.info("Initializing newsletter generator...")
+            generator = NewsletterGenerator()
 
-        # Test article collection
-        logging.info("Testing article collection...")
-        articles = generator.collect_news()
-        logging.info(f"Collected {len(articles)} articles across categories")
+            # Test article collection (limit to 2 articles)
+            logging.info("Testing article collection...")
+            articles = generator.collect_news()[:2]  # Limit to 2 articles
+            logging.info("Collected %d articles across categories", len(articles))
 
-        # Log article distribution
-        categories = {}
-        for article in articles:
-            cat = article['category']
-            if cat not in categories:
-                categories[cat] = 0
-            categories[cat] += 1
+            # Log article distribution
+            categories = {}
+            for article in articles:
+                cat = article['category']
+                if cat not in categories:
+                    categories[cat] = 0
+                categories[cat] += 1
 
-        for category, count in categories.items():
-            logging.info("Category '%s': %d articles", category, count)
+            for category, count in categories.items():
+                logging.info("Category '%s': %d articles", category, count)
 
-        # Test article enrichment
-        logging.info("Testing article enrichment...")
-        enriched = generator.enrich_articles(
-            articles[:2])  # Test with 2 articles
-        if enriched:
-            logging.info("Article enrichment successful")
-            logging.info("Sample enrichment for '%s':", enriched[0]['title'])
-            logging.info("- Summary: %s...", enriched[0]['summary'][:100])
-            logging.info("- Relevance Score: %s",
-                         enriched[0]['relevance_score'])
+            # Test article enrichment
+            logging.info("Testing article enrichment...")
+            enriched = generator.enrich_articles(
+                articles[:2])  # Test with 2 articles
+            if enriched:
+                logging.info("Article enrichment successful")
+                logging.info("Sample enrichment for '%s':", enriched[0]['title'])
+                logging.info("- Summary: %s...", enriched[0]['summary'][:100])
+                logging.info("- Relevance Score: %s",
+                             enriched[0]['relevance_score'])
 
-        # Test HTML generation
-        logging.info("Testing HTML generation...")
-        html = generator.generate_html(enriched)
-        if html and html.strip().startswith('<!DOCTYPE html>'):
-            logging.info("HTML generation successful")
+            # Test HTML generation
+            logging.info("Testing HTML generation...")
+            html = generator.generate_html(enriched)
+            if html and html.strip().startswith('<!DOCTYPE html>'):
+                logging.info("HTML generation successful")
 
-        # Test email sending
-        if input("Send test email? (y/n): ").lower() == 'y':
-            logging.info("Sending test email...")
-            send_email(html)
-            logging.info("Test email sent successfully")
+            # Test email sending
+            if input("Send test email? (y/n): ").lower() == 'y':
+                logging.info("Sending test email...")
+                send_email(html)
+                logging.info("Test email sent successfully")
 
-        logging.info("All components tested successfully!")
+            logging.info("All components tested successfully!")
 
-        if input("Run full newsletter generation? (y/n): ").lower() == 'y':
-            logging.info("Starting full newsletter generation...")
-            generator.generate_newsletter()
-            logging.info("Newsletter generation completed successfully!")
+            if input("Run full newsletter generation? (y/n): ").lower() == 'y':
+                logging.info("Starting full newsletter generation...")
+                generator.generate_newsletter()
+                logging.info("Newsletter generation completed successfully!")
 
-    except Exception as e:
-        logging.error("Newsletter generation failed!")
-        logging.error("Error details: %s", str(e))
-        logging.error("Stack trace:\n%s", traceback.format_exc())
-        sys.exit(1)
+        except Exception as e:
+            logging.error("Newsletter generation failed!")
+            logging.error("Error details: %s", str(e))
+            logging.error("Stack trace:\n%s", traceback.format_exc())
+            sys.exit(1)

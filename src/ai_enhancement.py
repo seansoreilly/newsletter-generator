@@ -1,5 +1,5 @@
 """
-Module for AI content enhancement using DeepSeek via the OpenRouter Chat Completions API.
+Module for AI content enhancement via the OpenRouter Chat Completions API.
 
 This module enriches news articles with:
   - A concise two-sentence summary.
@@ -26,8 +26,7 @@ logging.basicConfig(
 load_dotenv()
 
 # Endpoint for OpenRouter's Chat Completions API (adjust if necessary)
-OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
-
+LLM_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 def enrich_article(article: Dict) -> Dict:
     """
@@ -93,12 +92,12 @@ def enrich_article(article: Dict) -> Dict:
     try:
         # Log the raw request details
         logging.debug("Sending request to OpenRouter API")
-        logging.debug("Request URL: %s", OPENROUTER_API_URL)
+        logging.debug("Request URL: %s", LLM_API_URL)
         logging.debug("Request headers: %s", headers)
         logging.debug("Request payload: %s", data)
 
         response = requests.post(
-            OPENROUTER_API_URL, headers=headers, json=data)
+            LLM_API_URL, headers=headers, json=data)
         response.raise_for_status()
 
         # Log the raw response
@@ -196,8 +195,8 @@ def enrich_article(article: Dict) -> Dict:
 if __name__ == "__main__":
     # Test the enrich_article function with a sample article
     sample_article = {
-        "title": "Soil mound clean-up goes to VCAT - Dandenong Star Journal",
-        "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNRy01TWlTYWJGTl8tVDhTTENvOG9YRk1YcE5zZk5QVko5R01ONzlvZGtISWNHMGY0OTJkdlloQldSZElQNEtZR2FISDNINFZJMGpMT21jbElmWWgtOXFSdEZidGZyZ19HSmdqZzZQY1luT0N2REV1SDJSazkzcW9CNzgwN29obW05RURCWGtTbGNiQQ?oc=5"
+        "title": "Plea for permits to solve parking squeeze - Dandenong Star Journal",
+        "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQVnMxUDVTc3ZuUTIwTVZ2ajVCYW5ybFhMNHNrWmNFMzh6d2xaQTdFenhzNXVyUHpJZzkwMVBENXBoSWVrM1Z2d212UGxTU0I4UW9IWjZLMDhKMUxRQ0JYZmpkM3lTQk9ZdTBOZ2ttdERuaG5QYnhVWHo0YlZQVjA1T2l1Vnk1akdVQnV1STN3WjBjVkNXakFEbUZPVmRtQQ?oc=5"
     }
     enriched = enrich_article(sample_article)
     print("Enriched Article:")
