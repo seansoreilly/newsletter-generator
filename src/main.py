@@ -16,12 +16,11 @@ import sys
 import logging
 import traceback
 from typing import List, Dict
-from datetime import datetime
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 from news_collector import NewsCollector
 from ai_enhancement import enrich_article
 from email_sender import send_email
-
 
 # Ensure src directory is in Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -167,10 +166,6 @@ class NewsletterGenerator:
             result = response.json()
             html_content = result["choices"][0]["message"]["content"]
 
-            # Validate that it's proper HTML
-            if not html_content.strip().startswith('<!DOCTYPE html>'):
-                raise ValueError("Generated content is not valid HTML")
-
             return html_content
 
         except Exception as e:
@@ -279,7 +274,9 @@ class NewsletterGenerator:
 
             # 4. Send via SendGrid
             logging.info("Sending newsletter via SendGrid...")
-            send_email(html_content)
+            # Extract the main image URL from the first article (assuming it's the main image)
+            main_image_url = enriched_articles[0].get("main_image_url", "")
+            send_email(html_content, main_image_url)
 
             # Update last run timestamp
             self.last_run = datetime.now()
@@ -324,7 +321,7 @@ if __name__ == "__main__":
             categories[cat] += 1
 
         for category, count in categories.items():
-            logging.info("Category '%s': %d articles", category, count)
+            logging.info(f"Category '{category}': {count} articles")
 
         # Test article enrichment
         logging.info("Testing article enrichment...")
@@ -346,7 +343,9 @@ if __name__ == "__main__":
         # Test email sending
         if input("Send test email? (y/n): ").lower() == 'y':
             logging.info("Sending test email...")
-            send_email(html)
+            # Extract the main image URL from the first article (assuming it's the main image)
+            main_image_url = enriched[0].get("main_image_url", "")
+            send_email(html, main_image_url)
             logging.info("Test email sent successfully")
 
         logging.info("All components tested successfully!")

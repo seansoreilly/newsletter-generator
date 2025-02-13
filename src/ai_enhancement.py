@@ -65,6 +65,7 @@ def enrich_article(article: Dict) -> Dict:
         "instruction": (
             "Generate a concise two-sentence summary of this article, then evaluate its relevance to the Greater Dandenong Council. "
             "Provide a numerical relevance score between 0 and 100 and a brief explanation of the relevance. "
+            "Find the url for the main image in the article and return it as the key \"main_image_url\". "
             "Return your response as a JSON object with the keys \"summary\", \"relevance_score\", and \"relevance\"."
         )
     }
@@ -124,6 +125,9 @@ def enrich_article(article: Dict) -> Dict:
             summary = parsed.get("summary", "Summary not provided")
             relevance = parsed.get("relevance", "Relevance explanation not provided")
             
+            main_image_url = parsed.get("main_image_url", "Image URL not provided")
+            article["main_image_url"] = main_image_url
+
             # Handle relevance score - convert to int if possible
             score = parsed.get("relevance_score", 0)
             try:

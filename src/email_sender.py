@@ -19,7 +19,7 @@ with open('.env', 'r') as f:
     logging.info(f.read())
 
 
-def send_email(html_content: str) -> None:
+def send_email(html_content: str, main_image_url: str) -> None:
     """
     Sends an HTML email using SendGrid with proper error handling, delivery tracking,
     and recipient management.
@@ -49,6 +49,10 @@ def send_email(html_content: str) -> None:
                   for email in recipients_str.split(",") if email.strip()]
     
     logging.info(f"Sending to recipients: {recipients}")
+
+    # Embed the main image URL in the HTML content
+    if main_image_url:
+        html_content = f'<img src="{main_image_url}" alt="Main Image" style="max-width: 100%; height: auto;"><br>' + html_content
 
     message = Mail(
         from_email=sender,
